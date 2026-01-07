@@ -56,9 +56,9 @@ Na koncu v levem meniju klikni na gumb **Prenesi XML** in to datoteko naloži na
 
 ---
 
-### ☕ Častim kavo?
+### ☕ Podpora in donacije
 
-Če ti je skripta prihranila par ur živcev in kakšen evro pri davkih, bom vesel donacije za kavo!
+Če ti je skripta prihranila čas in denar, bom vesel donacije za kavo ali pivo!
 
 👉 **[Doniraj preko PayPal](https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ)**
 
