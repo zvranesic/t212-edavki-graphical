@@ -1,45 +1,38 @@
-============================================================
-   TRADING 212 DASHBOARD - NAVODILA ZA UPORABO
-============================================================
+TRADING 212 -> EDAVKE (Doh-KDVP)
+================================
 
-1. PRIPRAVA OKOLJA (Samo prvič)
----------------------------------
-- Namesti Python: https://www.python.org/ 
-  (Obvezno označi "Add Python to PATH"!)
-- Odpri Ukazni poziv (CMD) in namesti Streamlit z ukazom:
-  pip install streamlit pandas requests
+Skripta pretvori Trading 212 CSV izvoze v XML za uvoz v eDavke.
+Uposteva FIFO, delitve delnic (splits), 1% normirane stroske in ECB tecaje.
 
-2. PRIPRAVA PODATKOV
----------------------------
-- CSV izvoze iz Trading 212 skopiraj v mapo 'input'.
-- V mapi naj bo celotna zgodovina (vsi CSV-ji), da bo
-  FIFO izračun nabavne cene pravilen.
+NAVODILA ZA UPORABO:
+--------------------
 
-3. NASTAVITVE (settings.py)
----------------------------
-- Odpri 'settings.py' in vpiši svojo davčno številko, 
-  ime, naslov in ostale podatke. Datoteko shrani.
+1. PRIPRAVA OKOLJA
+   - Namesti Python (https://www.python.org/).
+   - !!! Med namestitvijo obkljukaj "Add Python to PATH" !!!
+   - Odpri CMD (ukazni poziv) in zazeni: 
+     pip install pandas requests
 
-4. ZAGON PROGRAMA
------------------
-- Odpri mapo, kjer je datoteka 'app.py'.
-- V naslovno vrstico mape (zgoraj) vpiši 'cmd' in pritisni Enter.
-- Vpiši ukaz: streamlit run app.py
-- Program se bo odprl v vašem spletnem brskalniku.
+2. PODATKI
+   - Izvozi vse transakcije iz Trading 212 (CSV).
+   - Pomembno: Izvozi celotno zgodovino trgovanja (ne le za letosnje leto).
+   - Datoteke skopiraj v mapo 'input'.
 
-5. UPORABA VMESNIKA
--------------------
-- Na levi strani preveri svoje podatke in izberi leto.
-- V zavihkih si oglej profit po delnicah in stanje zalog.
-- XML datoteka se samodejno shrani v mapo 'output'.
-- Gumb za prenos XML najdeš v stranskem meniju na levi.
+3. NASTAVITVE
+   - Odpri datoteko 'settings.py' z beleznico.
+   - Vpisi svoje podatke (davcna, ime, naslov) in davcno leto.
 
-------------------------------------------------------------
-Trading 212 Dashboard | Created by Žan Vranešič
+4. ZAGON
+   - V mapi s skripto v naslovno vrstico vpisi 'cmd' in pritisni Enter.
+   - Vpisi ukaz: 
+     python main.py
 
-Če ti je program prihranil čas, lahko doniraš za kavo:
-PayPal: https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ
-------------------------------------------------------------
+5. REZULTAT
+   - V mapi 'output' bos nasel XML datoteko.
+   - Uvozi jo v eDavke (Doh-KDVP).
 
-OPOMBA: Program je informativni pripomoček. Pred oddajo
-na portal eDavki obvezno preverite izračun.
+--------------------
+Ce ti je skripta prisparala zivce, casti kavo ali pivo:
+https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ
+
+*Uporaba na lastno odgovornost. Pred oddajo preveri podatke.*
