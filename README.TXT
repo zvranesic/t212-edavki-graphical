@@ -32,7 +32,8 @@ NAVODILA ZA UPORABO:
    - Uvozi jo v eDavke (Doh-KDVP).
 
 --------------------
-Ce ti je skripta prisparala zivce, casti kavo ali pivo:
+Ce ti je skripta prihranila cas in denar, bom vesel donacije za kavo ali pivo!:
 https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ
 
-*Uporaba na lastno odgovornost. Pred oddajo preveri podatke.*
+Pazi: Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
+
