@@ -11,7 +11,7 @@ from collections import deque
 try:
     import settings
 except ImportError:
-    st.error("Nastavitve niso na voljo!")
+    st.error("Nastavitve (settings.py) niso na voljo!")
     st.stop()
 
 
@@ -152,7 +152,8 @@ else:
                 'ticker': row['Ticker'], 'real': 0.0, 'furs': 0.0}
 
         if is_buy:
-            inventory[isin].append({'qty': qty, 'price': price_eur})
+            inventory[isin].append(
+                {'qty': qty, 'price': price_eur, 'time': row['Time'], 'year': row['Year_val']})
         else:
             temp_qty = qty
             while temp_qty > 0 and inventory[isin]:
@@ -197,7 +198,6 @@ else:
 
             def style_pl(v):
                 return f'color: {"#22c55e" if v >= 0 else "#ef4444"}; font-weight: bold;'
-
             st.dataframe(
                 res_df.style.format(
                     subset=['Realni P/L (€)', 'FURS P/L (€)'], formatter="{:.2f}")
@@ -250,8 +250,10 @@ else:
         body = ET.SubElement(root, f"{{{NS_MAIN}}}body")
         ET.SubElement(body, f"{{{NS_EDP}}}bodyContent")
         doh_kdvp = ET.SubElement(body, f"{{{NS_MAIN}}}Doh_KDVP")
+
         sold_isins = df_trades[(df_trades['Action'].str.contains('sell', case=False)) & (
             df_trades['Year_val'] == selected_year)]['ISIN'].unique()
+
         kdvp = ET.SubElement(doh_kdvp, f"{{{NS_MAIN}}}KDVP")
         ET.SubElement(kdvp, f"{{{NS_MAIN}}}DocumentWorkflowID").text = "O"
         ET.SubElement(kdvp, f"{{{NS_MAIN}}}Year").text = str(selected_year)
@@ -264,6 +266,8 @@ else:
             kdvp, f"{{{NS_MAIN}}}TelephoneNumber").text = settings.PHONE
         ET.SubElement(kdvp, f"{{{NS_MAIN}}}SecurityCount").text = str(
             len(sold_isins))
+
+        # VRSTNI RED JE POMEMBEN: Vsi števci morajo biti pred Emailom
         ET.SubElement(kdvp, f"{{{NS_MAIN}}}SecurityShortCount").text = "0"
         ET.SubElement(
             kdvp, f"{{{NS_MAIN}}}SecurityWithContractCount").text = "0"
@@ -273,62 +277,79 @@ else:
         ET.SubElement(
             kdvp, f"{{{NS_MAIN}}}SecurityCapitalReductionCount").text = "0"
         ET.SubElement(kdvp, f"{{{NS_MAIN}}}Email").text = settings.EMAIL
+
         for isin in sold_isins:
-            group = df_trades[df_trades['ISIN'] == isin].copy()
-            group = group[group['Time'] <= f"{selected_year}-12-31 23:59:59"]
-            ticker = group['Ticker'].iloc[0]
+            ticker = df_trades[df_trades['ISIN'] == isin]['Ticker'].iloc[0]
             k_item = ET.SubElement(doh_kdvp, f"{{{NS_MAIN}}}KDVPItem")
             ET.SubElement(
                 k_item, f"{{{NS_MAIN}}}InventoryListType").text = "PLVP"
             ET.SubElement(
                 k_item, f"{{{NS_MAIN}}}Name").text = f"{ticker} | {isin}"
             ET.SubElement(k_item, f"{{{NS_MAIN}}}HasForeignTax").text = "false"
-            ET.SubElement(
-                k_item, f"{{{NS_MAIN}}}HasLossTransfer").text = "false"
-            ET.SubElement(
-                k_item, f"{{{NS_MAIN}}}ForeignTransfer").text = "false"
-            ET.SubElement(
-                k_item, f"{{{NS_MAIN}}}TaxDecreaseConformance").text = "false"
             sec = ET.SubElement(k_item, f"{{{NS_MAIN}}}Securities")
             ET.SubElement(sec, f"{{{NS_MAIN}}}ISIN").text = str(isin)
             ET.SubElement(
                 sec, f"{{{NS_MAIN}}}Name").text = f"{ticker} | {isin}"
             ET.SubElement(sec, f"{{{NS_MAIN}}}IsFond").text = "false"
-            run_qty, row_id = 0.0, 0
+
+            temp_inv = deque()
+            xml_rows = []
+            group = df_trades[df_trades['ISIN'] == isin].copy()
+
             for _, row in group.iterrows():
                 q = float(row['No. of shares'])
                 buy = "buy" in row['Action'].lower()
                 if buy:
-                    run_qty += q
+                    temp_inv.append(
+                        {'qty': q, 'price': row['Price_EUR'], 'time': row['Time'], 'year': row['Year_val']})
+                    if row['Year_val'] == selected_year:
+                        xml_rows.append(
+                            {'type': 'B', 'date': row['Time'], 'qty': q, 'price': row['Price_EUR']})
                 else:
-                    run_qty -= q
-                if abs(run_qty) < 1e-9:
-                    run_qty = 0.0
-                if not buy and row['Year_val'] != selected_year:
-                    continue
-                xml_row = ET.SubElement(sec, f"{{{NS_MAIN}}}Row")
-                ET.SubElement(xml_row, f"{{{NS_MAIN}}}ID").text = str(row_id)
-                row_id += 1
-                if buy:
-                    p = ET.SubElement(xml_row, f"{{{NS_MAIN}}}Purchase")
-                    ET.SubElement(p, f"{{{NS_MAIN}}}F1").text = row['Time'].strftime(
+                    t_qty = q
+                    while t_qty > 0 and temp_inv:
+                        o_buy = temp_inv[0]
+                        take = min(t_qty, o_buy['qty'])
+                        if o_buy['year'] < selected_year and row['Year_val'] == selected_year:
+                            if not any(x['type'] == 'B' and x['date'] == o_buy['time'] for x in xml_rows):
+                                xml_rows.append(
+                                    {'type': 'B', 'date': o_buy['time'], 'qty': o_buy['qty'], 'price': o_buy['price']})
+                        o_buy['qty'] -= take
+                        t_qty -= take
+                        if o_buy['qty'] <= 1e-9:
+                            temp_inv.popleft()
+                    if row['Year_val'] == selected_year:
+                        xml_rows.append(
+                            {'type': 'S', 'date': row['Time'], 'qty': q, 'price': row['Price_EUR']})
+
+            xml_rows.sort(key=lambda x: x['date'])
+            run_qty = 0.0
+            for idx, xr in enumerate(xml_rows):
+                row_el = ET.SubElement(sec, f"{{{NS_MAIN}}}Row")
+                ET.SubElement(row_el, f"{{{NS_MAIN}}}ID").text = str(idx)
+                if xr['type'] == 'B':
+                    run_qty += xr['qty']
+                    p = ET.SubElement(row_el, f"{{{NS_MAIN}}}Purchase")
+                    ET.SubElement(p, f"{{{NS_MAIN}}}F1").text = xr['date'].strftime(
                         '%Y-%m-%d')
                     ET.SubElement(p, f"{{{NS_MAIN}}}F2").text = "B"
                     ET.SubElement(
-                        p, f"{{{NS_MAIN}}}F3").text = format_high_precision(q)
+                        p, f"{{{NS_MAIN}}}F3").text = format_high_precision(xr['qty'])
                     ET.SubElement(p, f"{{{NS_MAIN}}}F4").text = format_high_precision(
-                        row['Price_EUR'])
+                        xr['price'])
                     ET.SubElement(p, f"{{{NS_MAIN}}}F5").text = "0.0000"
                 else:
-                    s = ET.SubElement(xml_row, f"{{{NS_MAIN}}}Sale")
-                    ET.SubElement(s, f"{{{NS_MAIN}}}F6").text = row['Time'].strftime(
+                    run_qty -= xr['qty']
+                    s = ET.SubElement(row_el, f"{{{NS_MAIN}}}Sale")
+                    ET.SubElement(s, f"{{{NS_MAIN}}}F6").text = xr['date'].strftime(
                         '%Y-%m-%d')
                     ET.SubElement(
-                        s, f"{{{NS_MAIN}}}F7").text = format_high_precision(q)
+                        s, f"{{{NS_MAIN}}}F7").text = format_high_precision(xr['qty'])
                     ET.SubElement(s, f"{{{NS_MAIN}}}F9").text = format_high_precision(
-                        row['Price_EUR'])
-                ET.SubElement(
-                    xml_row, f"{{{NS_MAIN}}}F8").text = format_high_precision(run_qty)
+                        xr['price'])
+                ET.SubElement(row_el, f"{{{NS_MAIN}}}F8").text = format_high_precision(
+                    max(0, run_qty))
+
         xml_str = ET.tostring(root, encoding='utf-8')
         return minidom.parseString(xml_str).toprettyxml(indent="\t").replace('xmlns:default', 'xmlns')
 
