@@ -1,39 +1,53 @@
-TRADING 212 -> EDAVKE (Doh-KDVP)
-================================
+============================================================
+   TRADING 212 Edavki Poročanje - NAVODILA ZA UPORABO
+============================================================
 
-Skripta pretvori Trading 212 CSV izvoze v XML za uvoz v eDavke.
-Uposteva FIFO, delitve delnic (splits), 1% normirane stroske in ECB tecaje.
+Pozdravljeni! Ta program je namenjen avtomatizaciji priprave
+davčne napovedi za uporabnike Trading 212 v Sloveniji.
 
-NAVODILA ZA UPORABO:
+1. PRIPRAVA (Samo prvič)
+-------------------------
+- Namestite Python (https://www.python.org/).
+  POMEMBNO: Obkljukajte "Add Python to PATH" pri namestitvi!
+- Vse ostalo bo namestila datoteka 'run.bat'.
+
+2. PRIPRAVA PODATKOV
+---------------------
+- Iz Trading 212 izvozite transakcije v CSV formatu.
+- Datoteke skopirajte v mapo 'input'. 
+  NASVET: V mapi naj bodo vsi CSV-ji od začetka trgovanja, 
+  da bo izračun nabavne cene (FIFO) pravilen.
+
+3. OSEBNE NASTAVITVE
+---------------------
+- Odprite datoteko 'user_settings.py' (desni klik -> Uredi/Notepad).
+- Vpišite svojo davčno številko, ime, naslov in ostalo.
+- Shranite datoteko.
+
+4. ZAGON PROGRAMA
+------------------
+- Dvokliknite na datoteko 'run.bat'.
+- Okno konzole bo preverilo knjižnice in zagnalo vmesnik.
+- V brskalniku se bo odprla stran Trading 212 Tax Hub.
+
+5. UPORABA IN IZVOZ
 --------------------
+- Na levi strani izberite davčno leto (npr. 2025).
+- Program bo izračunal:
+    * REALNI P/L: Koliko ste dejansko zaslužili (v žep).
+    * OSNOVA FURS: Izračun s stroški in FIFO metodo.
+    * DAVČNA STOPNJA: Avtomatsko znižanje (25% -> 0%) glede 
+      na to, koliko let ste imeli delnico.
+- XML datoteke se SAMODEJNO shranijo v mapo 'output'.
+- Te datoteke naložite na portal eDavki.
 
-1. PRIPRAVA OKOLJA
-   - Namesti Python (https://www.python.org/).
-   - !!! Med namestitvijo obkljukaj "Add Python to PATH" !!!
-   - Odpri CMD (ukazni poziv) in zazeni: 
-     pip install pandas requests
+------------------------------------------------------------
+Trading 212 Dashboard | Created by Žan Vranešič
 
-2. PODATKI
-   - Izvozi vse transakcije iz Trading 212 (CSV).
-   - Pomembno: Izvozi celotno zgodovino trgovanja (ne le za letosnje leto).
-   - Datoteke skopiraj v mapo 'input'.
+Če ti je program prihranil čas, živce in denar pri davkih, bom vesel donacije za kavo ali pivo!
+PayPal: https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ
+------------------------------------------------------------
 
-3. NASTAVITVE
-   - Odpri datoteko 'settings.py' z beleznico.
-   - Vpisi svoje podatke (davcna, ime, naslov) in davcno leto.
-
-4. ZAGON
-   - V mapi s skripto v naslovno vrstico vpisi 'cmd' in pritisni Enter.
-   - Vpisi ukaz: 
-     python main.py
-
-5. REZULTAT
-   - V mapi 'output' bos nasel XML datoteko.
-   - Uvozi jo v eDavke (Doh-KDVP).
-
---------------------
-Ce ti je skripta prihranila cas in denar, bom vesel donacije za kavo ali pivo!:
-https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ
-
-Pazi: Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
-
+Opozorilo: Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke,
+če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
+============================================================
