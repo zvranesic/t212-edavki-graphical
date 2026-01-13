@@ -1,5 +1,4 @@
 TAX_YEAR = 2025
-TAX_RATE = 0.25
 
 TAX_NUMBER = "45645645"
 NAME = "Janez Novak"
