@@ -1,67 +1,55 @@
-# 🚀 Trading 212 ➡️ eDavke (Doh-KDVP)
+# 📈 Trading 212 - Edavki poročanje
 
-Živijo! Ta skripta je nastala, da si malo olajšamo življenje pri tistem zoprnem opravilu – oddaji davčne napovedi za delnice na eDavke. Če trguješ na Trading 212, veš, da ročno vpisovanje vsakega posla traja celo večnost. Ta programček to naredi namesto tebe, pripravi XML datoteko, ki jo samo uvoziš na portal, in stvar je rešena.
-
-Najnovejša verzija ima zdaj preprost grafični vmesnik, tako da ti ni treba gledati v črno okno (terminal), ampak vse urediš kar v brskalniku.
+Živijo! Ta skripta je nastala, da ti prihrani ure (ali dni) ročnega vpisovanja transakcij v portal eDavki. Če uporabljaš Trading 212, ta programček samodejno prebere tvoje CSV izpiske, izračuna vse potrebno po slovenski zakonodaji in ti pripravi XML datoteke, ki jih samo uvoziš.
 
 ---
 
-## 🛠️ Kaj moraš narediti (samo prvič)
+## 🚀 Kaj program zmore?
 
-1.  **Zrihtaj si Python:** Prenesi ga na [python.org](https://www.python.org/downloads/).
-    -   **Pazi:** Ko ga nameščaš, obvezno obkljukaj **"Add Python to PATH"**, sicer ga računalnik ne bo našel.
-2.  **Namesti knjižnice:** Odpri _Ukazni poziv_ (v iskanje vpiši `cmd`) in skopiraj tole notri:
-    ```bash
-    pip install streamlit pandas requests
-    ```
-
----
-
-## 📂 Kako pripraviš podatke
-
-1.  V Trading 212 aplikaciji izvozi svoje transakcije v **CSV** formatu.
-2.  Vse te datoteke preprosto vrzi v mapo `input`.
-    -   **Nasvet:** Najbolje je, da skopiraš **vse CSV-je, odkar si začel trgovati**. Skripta potrebuje pretekle nakupe, da lahko pravilno izračuna nabavno ceno (**FIFO**) za tisto, kar si prodal letos.
+-   **FURS FIFO logika:** Avtomatski izračun nabavne cene po metodi prvi noter, prvi ven.
+-   **Normirani stroški (1%):** Avtomatsko prišteje 1% pri nakupu in odšteje 1% pri prodaji (zniža tvoj davek!).
+-   **Holding Period (Zniževanje davka):** Program ve, koliko let si imel delnico. Avtomatsko upošteva lestvico (25%, 20%, 15%, 0%) glede na čas imetništva.
+-   **30-dnevno pravilo (Wash Sales):** Prepozna, če si delnico kupil nazaj v 30 dneh po prodaji z izgubo (FURS pravilo 97. člena ZDoh-2).
+-   **Realni P/L vs. FURS P/L:** Vidiš dejanski profit glede na povprečno nabavno ceno (tako kot v T212 aplikaciji) in ločeno FURS-ovo številko.
+-   **ECB tečaji:** Samodejno pridobi uradne tečaje ECB na dan transakcije.
+-   **Stock Splits:** Podpora za delitve delnic (npr. Nvidia 1:10), da se količine ne pomešajo.
+-   **XML Izvoz:** Generira datoteki za obrazca **Doh-KDVP** (delnice) in **Doh-Div** (dividende).
 
 ---
 
-## ⚙️ Nastavitve
+## 🛠️ Hitra priprava (Samo prvič)
 
-V mapi imaš datoteko `settings.py`. Odpri jo z Beležnico (Notepad) in vpiši svoje podatke (davčno številko, ime, naslov ...), da bodo eDavki vedeli, čigava je napoved. Nastavi tudi `TAX_YEAR` na leto, za katero oddajaš (npr. 2025).
-
----
-
-## ⚡ Zagon in uporaba
-
-1.  Pojdi v mapo, kjer imaš skripto. Zgoraj v naslovno vrstico raziskovalca vpiši **cmd** in pritisni Enter.
-2.  V črno okno vpiši:
-    ```bash
-    streamlit run app.py
-    ```
-3.  V brskalniku se ti bo odprla spletna stran. Tam boš videl:
-    -   **Koliko si dejansko zaslužil** (tvoj realni profit).
-    -   **Kakšna je osnova za davek po FURS-u** (upošteva se FIFO in 1 % normiranih stroškov).
-    -   **Kaj imaš še na zalogi** (tvoj portfelj).
-
-Na koncu v levem meniju klikni na gumb **Prenesi XML** in to datoteko naloži na eDavke pod obrazec Doh-KDVP.
+1.  **Namesti Python:** Prenesi ga na [python.org](https://www.python.org/downloads/).
+    -   **Nujno:** Ob namestitvi obkljukaj **"Add Python to PATH"**.
+2.  **Podatki:** V mapo `input` skopiraj vse svoje Trading 212 CSV izpiske (najbolje od samega začetka trgovanja).
+3.  **Nastavitve:** Odpri `user_settings.py` z Beležnico in vpiši svoje podatke (davčno, ime, naslov ...).
 
 ---
 
-## 💡 Zakaj je to fajn?
+## ⚡ Zagon
 
--   **ECB tečaji:** Skripta sama pobere uradne tečaje z interneta, tako da ti ni treba nič preračunavati.
--   **Manjši davek:** Avtomatsko upošteva 1 % stroškov pri nakupu in 1 % pri prodaji, kar ti malo zniža davčno osnovo.
--   **Stock Splits:** Če si imel Nvidio leta 2024, veš, da so delili delnice 1:10. Skripta to upošteva, da ne boš v minusu s količino.
--   **Dividende:** Poseben zavihek ti pripravi pregled dividend, da lažje izpolniš še obrazec Doh-Div.
+Pozabi na ukaze v terminalu! Samo **dvoklikni na datoteko `run.bat`**.
 
----
-
-### ☕ Podpora in donacije
-
-Če ti je skripta prihranila čas in denar, bom vesel donacije za kavo ali pivo!
-
-👉 **[Doniraj preko PayPal](https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ)**
+-   Skripta bo sama namestila/posodobila knjižnice (`streamlit`, `pandas`, `requests`).
+-   Avtomatsko bo zagnala grafični vmesnik v tvojem brskalniku.
 
 ---
 
-**Pazi:** Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
+## 📂 Kje so moji dokumenti?
+
+Ko program zaženeš in izbereš leto:
+
+1.  XML datoteke se **samodejno ustvarijo/posodobijo** v mapi `output`.
+2.  Datoteki `Doh_KDVP_xxxx.xml` in `Doh_Div_xxxx.xml` preprosto naložiš na portal eDavki (Uvoz dokumenta).
+
+---
+
+### ☕ Podpora
+
+Če ti je program prihranil čas, živce in denar pri davkih, bom vesel donacije za kavo ali pivo!
+
+👉 **[Doniraj preko PayPal-a](https://www.paypal.com/donate/?hosted_button_id=X35CTXP8REUVQ)**
+
+---
+
+**Opozorilo:** Program je informativni pripomoček. Preden oddaš na eDavke, vseeno malo preveri številke, če se ti zdi vse smiselno. Za svojo davčno napoved odgovarjaš sam.
